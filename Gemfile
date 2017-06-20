@@ -42,6 +42,7 @@ group :development do
   gem 'travis',                   :require => false
   gem 'travis-lint',              :require => false
   gem 'guard-rake',               :require => false
+  gem 'rb-readline',              :require => false
   gem 'overcommit', '~> 0.39.1',  :require => false
 end
 
@@ -56,6 +57,7 @@ group :system_tests do
   end
   gem 'serverspec',                    :require => false
   gem 'beaker-puppet_install_helper',  :require => false
+  gem 'vagrant-wrapper', :require => false
 end
 
 

@@ -1,0 +1,25 @@
+---
+mlocate::package_name: mlocate
+mlocate::package_ensure: present
+mlocate::update_command: '/usr/local/bin/mlocate.cron'
+mlocate::deploy_update_command: true
+mlocate::update_on_install: true
+mlocate::conf_file: '/etc/updatedb.conf'
+mlocate::cron_ensure: present
+mlocate::cron_daily_path: '/etc/cron.daily/mlocate.cron'
+mlocate::cron_d_path: '/etc/cron.d/mlocate.cron'
+mlocate::prunefs: [ '9p', 'afs', 'anon_inodefs', 'auto', 'autofs', 'bdev',
+  'binfmt_misc', 'cgroup', 'cifs', 'coda', 'configfs', 'cpuset', 'debugfs',
+  'devpts', 'ecryptfs', 'exofs', 'fuse', 'fusectl', 'fuse.glusterfs', 'gfs',
+  'gfs2', 'hugetlbfs', 'inotifyfs', 'iso9660', 'jffs2', 'lustre', 'mqueue',
+  'ncpfs', 'nfs', 'nfs4', 'nfsd', 'pipefs', 'proc', 'ramfs', 'rootfs',
+  'rpc_pipefs', 'securityfs', 'selinuxfs', 'sfs', 'sockfs', 'sysfs', 'tmpfs',
+  'ubifs', 'udf', 'usbfs' ]
+mlocate::extra_prunefs: ~
+mlocate::prunepaths: [ '/afs', '/media', '/net', '/sfs', '/tmp', '/udev',
+  '/var/cache/ccache', '/var/spool/cups', '/var/spool/squid', '/var/tmp' ]
+mlocate::extra_prunepaths: ~
+mlocate::prunenames: ~
+mlocate::extra_prunenames: ~
+mlocate::prune_bind_mounts: ~
+mlocate::cron_schedule: ~

@@ -1,36 +1,33 @@
-class mlocate::install (
-  $package_ensure        = $::mlocate::package_ensure,
-  $package_name          = $::mlocate::package_name,
-  $conf_file             = $::mlocate::conf_file,
-  $update_command        = $::mlocate::update_command,
-  $deploy_update_command = $::mlocate::deploy_update_command,
-  $update_on_install     = $::mlocate::update_on_install,
-  $cron_daily_path       = $::mlocate::cron_daily_path,
-) inherits mlocate {
+class mlocate::install inherits mlocate {
 
-  if $caller_module_name != $module_name {
-    fail("Use of private class ${name} by ${caller_module_name}")
-  }
+  assert_private("Use of private class ${name} by ${caller_module_name}")
 
   package { 'mlocate':
-    ensure => $package_ensure,
-    name   => $package_name,
+    ensure => $mlocate::package_ensure,
+    name   => $mlocate::package_name,
+  }
+
+  $updatedb_conf_args = {
+    prunefs           => join(delete_undef_values([$mlocate::prunefs, $mlocate::extra_prunefs]), ' '),
+    prunenames        => join(delete_undef_values([$mlocate::prunenames, $mlocate::extra_prunenames]), ' '),
+    prunepaths        => join($mlocate::prunepaths, ' '),
+    prune_bind_mounts => $mlocate::prune_bind_mounts,
   }
 
   file { 'updatedb.conf':
     ensure  => file,
-    path    => $conf_file,
+    path    => $mlocate::conf_file,
     owner   => 'root',
     group   => 'root',
     mode    => '0444',
-    content => template("${module_name}/updatedb.conf.erb"),
+    content => epp("${module_name}/updatedb.conf.epp", $updatedb_conf_args),
     require => Package['mlocate'],
   }
 
-  if $deploy_update_command {
+  if $mlocate::deploy_update_command {
     file { 'update_command':
       ensure  => file,
-      path    => $update_command,
+      path    => $mlocate::update_command,
       owner   => 'root',
       group   => 'root',
       mode    => '0555',
@@ -39,13 +36,13 @@ class mlocate::install (
     }
   }
 
-  file { $cron_daily_path:
+  file { $mlocate::cron_daily_path:
     ensure  => absent,
     require => Package['mlocate'],
   }
 
-  if $update_on_install == true {
-    exec { $update_command:
+  if $mlocate::update_on_install == true {
+    exec { $mlocate::update_command:
       refreshonly => true,
       creates     => '/var/lib/mlocate/mlocate.db',
       subscribe   => Package['mlocate'],

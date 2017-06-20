@@ -1,23 +1,30 @@
-class mlocate::cron (
-  $cron_ensure = $::mlocate::cron_ensure
-) inherits mlocate {
+class mlocate::cron inherits mlocate {
 
-  if $caller_module_name != $module_name {
-    fail("Use of private class ${name} by ${caller_module_name}")
+  assert_private("Use of private class ${name} by ${caller_module_name}")
+
+  if $mlocate::cron_schedule {
+    $cron_args = {
+      cron_schedule  => $mlocate::cron_schedule,
+      update_command => $mlocate::update_command,
+    }
+  } else {
+    $cron_args = {
+      cron_schedule  => "${mlocate::cron_minute} ${mlocate::cron_hour} * * ${mlocate::cron_day}",
+      update_command => $mlocate::update_command,
+    }
   }
 
-  $_real_ensure = $cron_ensure ? {
+  $_real_ensure = $mlocate::cron_ensure ? {
     'present' => 'file',
-    'absent'  => 'absent',
     default   => 'absent',
   }
 
   # This template uses $update_command and $cron_schedule
-  file { '/etc/cron.d/mlocate.cron':
+  file { $mlocate::cron_d_path:
     ensure  => $_real_ensure,
     owner   => 'root',
     group   => 'root',
     mode    => '0444',
-    content => template("${module_name}/cron.d.erb"),
+    content => epp("${module_name}/cron.d.epp", $cron_args),
   }
 }

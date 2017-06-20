@@ -1,0 +1,17 @@
+<%- |
+  String $prunefs,
+  String $prunepaths,
+  Optional[String] $prune_bind_mounts,
+  Optional[String] $prunenames,
+
+| -%>
+# This file is managed by puppet.
+#
+<% unless $prune_bind_mounts =~ Undef { -%>
+PRUNE_BIND_MOUNTS = "<%= $prune_bind_mounts %>"
+<% } -%>
+PRUNEFS = "<%= $prunefs %>"
+<% if $prunenames != '' { -%>
+PRUNENAMES = "<%= $prunenames %>"
+<% } -%>
+PRUNEPATHS = "<%= $prunepaths %>"

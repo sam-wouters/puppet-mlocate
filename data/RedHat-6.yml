@@ -1,0 +1,4 @@
+---
+mlocate::cron_daily_path: '/etc/cron.daily/mlocate'
+mlocate::prune_bind_mounts: 'yes'
+mlocate::prunenames: [ '.git', '.hg', '.svn' ]

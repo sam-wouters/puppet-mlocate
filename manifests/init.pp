@@ -72,54 +72,34 @@
 #
 # === Copyright
 #
-# Copyright 2014 Adam Crews, unless otherwise noted.
+# Copyright 2017 Adam Crews, unless otherwise noted.
 #
 class mlocate (
-  $package_name          = $mlocate::params::package_name,
-  $package_ensure        = $mlocate::params::package_ensure,
-  $update_command        = $mlocate::params::update_command,
-  $deploy_update_command = $mlocate::params::deploy_update_command,
-  $update_on_install     = $mlocate::params::update_on_install,
-  $conf_file             = $mlocate::params::conf_file,
+  String $package_name,
+  Enum['present', 'installed', 'latest', 'absent'] $package_ensure,
+  Stdlib::Absolutepath $update_command,
+  Boolean $deploy_update_command,
+  Boolean $update_on_install,
+  Stdlib::Absolutepath $conf_file,
+  Enum['present', 'absent'] $cron_ensure,
+  Stdlib::Absolutepath $cron_daily_path,
+  Stdlib::Absolutepath $cron_d_path,
+  Array[String] $prunefs,
+  Optional[Array[String]] $extra_prunefs,
+  Array[Stdlib::Absolutepath] $prunepaths,
+  Optional[Array[Stdlib::Absolutepath]] $extra_prunepaths,
+  Optional[Array[String]] $prunenames,
+  Optional[Array[String]] $extra_prunenames,
+  Optional[String] $cron_schedule,
+  Optional[Enum['yes', 'no']] $prune_bind_mounts,
+  Optional[Integer[0,59]] $cron_minute = fqdn_rand(60, "${module_name}-min"),
+  Optional[Integer[0,23]] $cron_hour = fqdn_rand(24, "${module_name}-hour"),
+  Optional[Integer[0,6]] $cron_day = fqdn_rand(7, "${module_name}-day")
+) {
 
-  $cron_ensure           = $mlocate::params::cron_ensure,
-  $cron_schedule         = $mlocate::params::cron_schedule,
-  $cron_daily_path       = $mlocate::params::cron_daily_path,
+  contain ::mlocate::install
+  contain ::mlocate::cron
 
-  $prune_bind_mounts     = $mlocate::params::prune_bind_mounts,
-  $prunefs               = $mlocate::params::prunefs,
-  $extra_prunefs         = [],
-  $prunenames            = $mlocate::params::prunenames,
-  $extra_prunenames      = [],
-  $prunepaths            = $mlocate::params::prunepaths,
-  $extra_prunepaths      = [],
-) inherits mlocate::params {
-
-  validate_string($package_name)
-  validate_re($package_ensure, ['^present', '^latest', '^absent'], "Error: \$package_ensure must be either 'present', 'latest', or 'absent'")
-  validate_absolute_path($update_command)
-  validate_bool($deploy_update_command)
-  validate_bool($update_on_install)
-  validate_absolute_path($conf_file)
-
-  validate_re($cron_ensure, ['^present', '^absent'], "Error: \$cron_ensure must be either 'present' or 'absent'")
-  validate_string($cron_schedule)
-  validate_absolute_path($cron_daily_path)
-
-  if $prune_bind_mounts {
-    validate_re($prune_bind_mounts, [ '^yes', '^no' ], "Error: \$prune_bind_mounts must be either 'yes', or 'no'")
-  }
-  validate_array($prunefs)
-  validate_array($extra_prunefs)
-  if $prunenames {
-    validate_array($prunenames)
-  }
-  validate_array($extra_prunenames)
-  validate_array($prunepaths)
-  validate_array($extra_prunepaths)
-
-  anchor { 'mlocate::begin': }
-  -> class { '::mlocate::install': }
-  -> class { '::mlocate::cron': }
-  -> anchor { 'mlocate::end': }
+  Class['::mlocate::install']
+  -> Class['::mlocate::cron']
 }

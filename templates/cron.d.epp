@@ -1,0 +1,10 @@
+<%- |
+  String $cron_schedule,
+  String $update_command
+| -%>
+# This file is managed by puppet.
+SHELL=/bin/bash
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+MAILTO=root
+HOME=/
+<%= $cron_schedule %> root <%= $update_command %>
